@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+    <head>
+        <script src='script.js'></script>
+        <link rel="stylesheet" href="styles.css" type="text/css" />
+        <script src="bower_components/angularjs/angular.js"></script>
+        
+        <script>
+        
+        /* global angular */
+        
+            var aanwezigheidslijstModule = angular.module("aanwezigheidslijstModule", []);
+            aanwezigheidslijstModule.service("StudentModelService", function($q) {
+                var deferred = $q.defer();
+                
+                var studenten = [
+                    {naam: " Jos Peeters", kotstudent: false, aanwezigheid: false},
+                    {naam: " Marieke Flint", kotstudent: false, aanwezigheid: false},
+                    {naam: " Brad Limpi", kotstudent: false, aanwezigheid: true}
+                ];
+                
+                deferred.resolve(studenten);
+                
+                this.getStudenten = function() {
+                    return deferred.promise;
+                }
+            });
+            
+            aanwezigheidslijstModule.controller("AanwezigheidsCtrl", function($scope, StudentModelService){
+                $scope.paginaTitel = "aanwezigheidslijst";
+                
+                StudentModelService.getStudenten().then(function(studenten) {
+                    $scope.studenten = studenten;
+                });
+            });
+            
+            aanwezigheidslijstModule.directive("student", function() {
+               return {
+                   scope: {
+                        object: "=",
+                        view: "@"
+                   },
+                   templateUrl: function($elem, $attr) {
+                      return "objects/student/student.html";
+                   },
+                   controller: function($scope) {
+                       $scope.student = $scope.object;
+                   }
+               }; 
+            });
+            
+        </script>
+    </head>
+    <body ng-app="aanwezigheidslijstModule" ng-controller="AanwezigheidsCtrl">
+        <h1>{{paginaTitel}}</h1>
+        <student ng-repeat="student in studenten" object="student" view="detail" ng-class="{nietaanwezig:!student.aanwezigheid}"></student>
+    </body>
+</html>
